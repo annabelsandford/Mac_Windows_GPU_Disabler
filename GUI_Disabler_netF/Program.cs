@@ -12,29 +12,80 @@ using System.Threading.Tasks;
 
 namespace GUI_Disabler_netF
 {
+    static class Globals
+    {
+        public static bool HAL_was_disabled = false;
+    }
+
     class Program
     {
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Macbook Pro GPU Disabler\nVersion 1.0 (by Annabel Sandford)");
-            getGPU();
-
-            //Console.ReadKey();
+            Console.WriteLine("Macbook Pro GPU Disabler\nVersion 1.1 - Written by Annabel Sandford");
+            Console.WriteLine("=======================================");
+            checkMacHAL();
         }
 
         static void rebootMe()
         {
-            //MessageBox.Show("Test");
-            DialogResult dialogResult = MessageBox.Show("Do you want to reboot?", "GPU Disabler", MessageBoxButtons.YesNo);
-            if (dialogResult == DialogResult.Yes)
+            if (Globals.HAL_was_disabled == true)
             {
-                System.Diagnostics.Process.Start("shutdown.exe", "-r -t 0");
+                DialogResult dialogResult = MessageBox.Show("We have detected and disabled drivers (MacHALDriver.sys) which can cause this computer to crash and/or be unstable.\nWe need to reboot to apply the changes.\n\nDo you want to reboot? (Highly recommended)", "REBOOT - GPU Disabler", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    System.Diagnostics.Process.Start("shutdown.exe", "-r -t 0");
+                }
+                else if (dialogResult == DialogResult.No)
+                {
+                    Environment.Exit(0);
+                }
             }
-            else if (dialogResult == DialogResult.No)
+            else
             {
-                Environment.Exit(0);
+                DialogResult dialogResult = MessageBox.Show("Do you want to reboot?", "GPU Disabler", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    System.Diagnostics.Process.Start("shutdown.exe", "-r -t 0");
+                }
+                else if (dialogResult == DialogResult.No)
+                {
+                    Environment.Exit(0);
+                }
             }
+        }
+
+        public static void checkMacHAL()
+        {
+            string HAL_path = "C:\\Windows\\System32\\drivers\\MacHALDriver.sys";
+            string replace_HAL_path = "C:\\Windows\\System32\\drivers\\disabled_MacHALDriver.sys";
+            if (File.Exists(HAL_path))
+            {
+                Console.WriteLine("MacHALDriver.sys detected at " + HAL_path);
+                try
+                {
+                    if (File.Exists(replace_HAL_path))
+                    {
+                        File.Delete(replace_HAL_path);
+                    }
+                    File.Move(HAL_path, replace_HAL_path);
+                    Console.WriteLine("MacHALDriver.sys moved to " + replace_HAL_path);
+                    Globals.HAL_was_disabled = true;
+                }
+                catch (Exception b)
+                {
+                    Console.WriteLine("Could not move MacHALDriver.sys :( \n" + b.ToString());
+                }
+            }
+            else if (File.Exists(replace_HAL_path))
+            {
+                Console.WriteLine("Disabled MacHALDriver.sys detected at " + replace_HAL_path);
+            }
+            else
+            {
+                Console.WriteLine("MacHALDriver.sys not found.");
+            }
+            getGPU();
         }
 
         static void getGPU()
