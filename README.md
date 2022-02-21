@@ -21,7 +21,7 @@ b) The GPU_Disabler will automatically scan and get rid of the MacHALDriver.sys 
 ## Checklist
 - [X] Check for MacHALDriver.sys
 - [X] Self installation
-- [ ] Automated audio fix
+- [X] Automated audio fix
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
